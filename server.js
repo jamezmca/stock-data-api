@@ -14,15 +14,15 @@ app.get('/:ticker', async (req, res) => {
     if (!ticker || !key) {
         return res.status(400).send({ message: "Please provide api key and ticker" })
     }
-    const { data } = await axios.get('https://finance.yahoo.com/quote/MRNA/key-statistics?p=MRNA')
-    const $ = cheerio.load(data)
-    return res.send({
-        data: $('section[data-test="qsp-statistics"] > div:nth-child(3) tr').get().map(val => {
-            const $ = cheerio.load(val)
-            const keyVals = $('td').get().splice(0, 2).map(val => $(val).text())
-            return keyVals
-        })
-    })
+    // const { data } = await axios.get('https://finance.yahoo.com/quote/MRNA/key-statistics?p=MRNA')
+    // const $ = cheerio.load(data)
+    // return res.send({
+    //     data: $('section[data-test="qsp-statistics"] > div:nth-child(3) tr').get().map(val => {
+    //         const $ = cheerio.load(val)
+    //         const keyVals = $('td').get().splice(0, 2).map(val => $(val).text())
+    //         return keyVals
+    //     })
+    // })
 
     try {
 
