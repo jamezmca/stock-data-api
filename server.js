@@ -19,7 +19,7 @@ app.get('/:ticker', async (req, res) => {
     return res.send({
         data: $('section[data-test="qsp-statistics"] > div:nth-child(3) tr').get().map(val => {
             const $ = cheerio.load(val)
-            const keyVals = $('td').get().splice(0, 1).map(val => $(val).text())
+            const keyVals = $('td').get().splice(0, 2).map(val => $(val).text())
             return keyVals
         })
     })
