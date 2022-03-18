@@ -65,24 +65,45 @@ app.get('/:ticker', async (req, res) => {
                     'Operating Cash Flow (ttm)'
                 ]
 
-                const stats = $('section[data-test="qsp-statistics"] > div:nth-child(2) tr').get().map(val => $(val).text())
-                    .reduce((acc, curr) => {
-                        const includedCheck = metrics.reduce((acc, curr2) => {
-                            if (acc === true) { return true }
-                            return curr.includes(curr2)
-                        }, false)
-                        if (includedCheck) {
-                            const title = metrics.reduce((acc, curr2) => {
-                                if (curr.includes(curr2)) {
-                                    return curr2
-                                }
-                                return acc
-                            }, '')
-                            return { ...acc, [title]: curr.replace(title, '') }
-                        } else {
-                            return acc
-                        }
-                    }, {})
+                const stats = $('section[data-test="qsp-statistics"] > div:nth-child(3) tr').get().map(val => {
+                    const $ = cheerio.load(val)
+                    const keyVals = $('td').get().splice(0, 2).map(val => $(val).text())
+                    return keyVals
+                }).reduce((acc, curr) => {
+                    if (curr.length < 1) {
+                        return acc
+                    }
+
+                    const includedCheck = metrics.reduce((acc, curr2) => {
+                        if (acc === true) { return true }
+                        return curr[0].includes(curr2)
+                    }, false)
+
+                    if (!includedCheck) {
+                        return acc
+                    }
+
+                    return { ...acc, [curr[0]]: curr[1] }
+                }, {})
+
+                // const stats = $('section[data-test="qsp-statistics"] > div:nth-child(2) tr').get().map(val => $(val).text())
+                //     .reduce((acc, curr) => {
+                //         const includedCheck = metrics.reduce((acc, curr2) => {
+                //             if (acc === true) { return true }
+                //             return curr.includes(curr2)
+                //         }, false)
+                //         if (includedCheck) {
+                //             const title = metrics.reduce((acc, curr2) => {
+                //                 if (curr.includes(curr2)) {
+                //                     return curr2
+                //                 }
+                //                 return acc
+                //             }, '')
+                //             return { ...acc, [title]: curr.replace(title, '') }
+                //         } else {
+                //             return acc
+                //         }
+                //     }, {})
                 return { stats }
             }
         }))
