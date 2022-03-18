@@ -16,7 +16,7 @@ app.get('/:ticker', async (req, res) => {
     }
     const { data } = await axios.get('https://finance.yahoo.com/quote/MRNA/key-statistics?p=MRNA')
     const $ = cheerio.load(data)
-    return res.send({ data: $('section[data-test="qsp-statistics"] > div:nth-child(2) tr').get().map(val => $(val).text()) })
+    return res.send({ data: $('section[data-test="qsp-statistics"]').get().map(val => $(val).text()) })
 
     try {
 
