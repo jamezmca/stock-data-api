@@ -2,6 +2,7 @@ const axios = require('axios')
 const cheerio = require('cheerio')
 const app = require('express')()
 const port = process.env.PORT || 8008
+const secretKey = process.env.SECRET_PASS
 
 app.get('/', (req, res) => {
     res.status(200).send('<h1>James\' Stock Data API</h1>')
@@ -11,28 +12,17 @@ app.get('/:ticker', async (req, res) => {
     const { ticker } = req.params
     const { key } = req.query
 
-    if (!ticker || !key) {
+    if (!ticker || !key || key !== secretKey) {
         return res.status(400).send({ message: "Please provide api key and ticker" })
     }
-    // const { data } = await axios.get('https://finance.yahoo.com/quote/MRNA/key-statistics?p=MRNA')
-    // const $ = cheerio.load(data)
-    // return res.send({
-    //     data: $('section[data-test="qsp-statistics"] > div:nth-child(3) tr').get().map(val => {
-    //         const $ = cheerio.load(val)
-    //         const keyVals = $('td').get().splice(0, 2).map(val => $(val).text())
-    //         return keyVals
-    //     })
-    // })
 
     try {
-
         const stockInfo = await Promise.all(['key-statistics', 'history'].map(async type => {
             const url = `https://finance.yahoo.com/quote/${ticker}/${type}?p=${ticker}`
             const { data } = await axios.get(url)
             const $ = cheerio.load(data)
 
             if (type === 'history') {
-
                 const prices = $('td:nth-child(6)').get().map(val => $(val).text())
                 return { prices }
             }
@@ -85,26 +75,7 @@ app.get('/:ticker', async (req, res) => {
 
                     return { ...acc, [curr[0]]: curr[1] }
                 }, {})
-
-                // const stats = $('section[data-test="qsp-statistics"] > div:nth-child(2) tr').get().map(val => $(val).text())
-                //     .reduce((acc, curr) => {
-                //         const includedCheck = metrics.reduce((acc, curr2) => {
-                //             if (acc === true) { return true }
-                //             return curr.includes(curr2)
-                //         }, false)
-                //         if (includedCheck) {
-                //             const title = metrics.reduce((acc, curr2) => {
-                //                 if (curr.includes(curr2)) {
-                //                     return curr2
-                //                 }
-                //                 return acc
-                //             }, '')
-                //             return { ...acc, [title]: curr.replace(title, '') }
-                //         } else {
-                //             return acc
-                //         }
-                //     }, {})
-                return { stats }
+                return { financials: stats }
             }
         }))
 
@@ -113,6 +84,7 @@ app.get('/:ticker', async (req, res) => {
                 return { ...acc, [Object.keys(curr)[0]]: Object.values(curr)[0] }
             }, {})
         })
+
     } catch (err) {
         res.status(500).send({ message: err.message })
     }
