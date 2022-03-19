@@ -82,7 +82,7 @@ app.get('/:ticker', async (req, res) => {
         }))
 
         res.status(200).send({
-            data: stockInfo.reduce((acc, curr) => {
+            [ticker]: stockInfo.reduce((acc, curr) => {
                 return { ...acc, [Object.keys(curr)[0]]: Object.values(curr)[0] }
             }, {})
         })
